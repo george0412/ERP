@@ -11,6 +11,137 @@
 			$this->conn = $db;
 		}
 		//SELECTS//
+		//Reporte de Rechazos
+		public function viewRechazos($year)
+		{
+			$query = "SELECT 
+					A.id_agente,
+					CONCAT(A.nombre_agente,' ',A.apellidos_agente) AS agente,
+					GROUP_CONCAT(T.tipo_agente) AS tipoAgente,
+					C.circulo,
+					IE.invo_evo,
+					A.oferta_actual,
+					((SELECT SUM((DACE.mes1_Ej+DACE.mes2_Ej+DACE.mes3_Ej+DACE.mes4_Ej+DACE.mes5_Ej+DACE.mes6_Ej+DACE.mes7_Ej+DACE.mes8_Ej+DACE.mes9_Ej+DACE.mes10_Ej+DACE.mes11_Ej+DACE.mes12_Ej)*DACE.costo_ac) FROM T_Detalle_AnalisisCuantitativo_Escenario2 AS DACE INNER JOIN T_AnalisisCuantitativo_Escenario2 AS ACE ON ACE.id_analisiscuantitativo = DACE.id_analisiscuantitativo WHERE ACE.year_acuant = :year)*C.porcentaje)/(SELECT COUNT(id_agente) FROM T_Agentes WHERE id_circulo = 1) AS TotalEstacionariedad,
+					(SELECT SUM(DBA.costo) FROM T_Detalle_Bitacora_Agente AS DBA INNER JOIN T_Detalle_Bitacora AS DB ON DB.id_detallebitacora = DBA.id_detallebitacora WHERE YEAR(DB.ultima_modificacion) = :year AND DBA.id_agente = A.id_agente) AS TotalBitacora,
+					(SELECT SUM(R.monto) FROM T_Rechazos AS R WHERE YEAR(R.fecha_rechazo) = :year AND R.id_agente = A.id_agente) AS TotalRechazo
+				FROM T_Agentes AS A
+				INNER JOIN T_Circulos AS C
+				ON C.id_circulo = A.id_circulo
+				INNER JOIN T_Invo_Evo AS IE
+				ON IE.id_invo_evo = A.id_invo_evo
+				INNER JOIN T_TipoAgente_Agente AS TAA
+				ON TAA.id_agente = A.id_agente
+				INNER JOIN T_TipoAgente AS T
+				ON T.id_tipoagente = TAA.id_tipoagente";
+			$stmt = $this->conn->prepare($query);
+			$stmt->execute();
+			$count1 = $stmt->rowCount();
+			if($count1 > 0)
+			{
+				$x = 1;
+				while($row=$stmt->fetch(PDO::FETCH_ASSOC))
+				{
+					?>
+						<tr>
+							<td style="text-align: center"><a href="viewRechazosAgentes.php?agente=<?php print($row['agente']); ?>&idagente=<?php print($row['id_agente']); ?>"><i class="glyph-icon icon-eye"></i></a></td>
+							<td><?php print($row['agente']); ?></td>
+							<td><?php print($row['tipoAgente']); ?></td>
+							<td><?php print($row['circulo']); ?></td>
+							<td><?php print($row['invo_evo']); ?></td>
+							<td><?php print(number_format($row['oferta_actual'],2)); ?></td>
+							<td><?php print(number_format($row['TotalBitacora'],2)); ?></td>
+							<td><?php print(number_format($row['oferta_actual']-$row['TotalBitacora'],2)); ?></td>
+							<td><?php print(number_format($row['TotalRechazo'],2)); ?></td>
+							<td><?php print(number_format($row['oferta_actual']-$row['TotalBitacora']-$row['TotalRechazo'],2)); ?></td>
+						</tr>
+					<?php	
+					$x++;
+				}
+			}
+			else
+			{
+			?>
+				<tr>
+					<td>No hay agentes disponibles</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			<?php
+			}
+		}
+		public function viewRechazosDetalle($agente,$year)
+		{
+			INSERT INTO T_Rechazos (id_agente, id_tiporechazo, monto, fecha_rechazo, id_detallebitacora_agente, comentarios) 
+				VALUES (:agente,:tipo_rechazo,:monto,NOW(),:idDetalle,:comentarios_agente)
+			$query = "SELECT 
+					R.id_tiporechazo,
+					TR.tipo_rechazo,
+					R.monto,
+					R.fecha_rechazo,
+					R.comentarios,
+					CONCAT(DB.id_del_evento,' - ',DB.nombre_bitacora) as evento,
+					DB.fecha_ejecucion,
+					C.nombre_cliente
+				FROM T_Rechazos AS R
+				INNER JOIN T_TipoRechazos AS TR
+				ON TR.id_tiporechazo = R.id_tiporechazo
+				INNER JOIN T_Detalle_Bitacora_Agente AS DBA
+				ON DBA.id_detallebitacora_agente = R.id_detallebitacora_agente
+				INNER JOIN T_Detalle_Bitacora AS DB
+				ON DB.id_detallebitacora = DBA.id_detallebitacora
+				INNER JOIN T_Bitacora AS B
+				ON B.id_bitacora = DB.id_bitacora
+				INNER JOIN T_Clientes AS C
+				ON C.id_cliente = B.id_cliente
+				WHERE R.id_agente = :agente AND YEAR(DB.fecha_ejecucion) = :year
+				GROUP BY DB.id_detallebitacora";
+			$stmt = $this->conn->prepare($query);
+			$stmt->bindparam(":agente",$agente);
+			$stmt->bindparam(":year",$year);
+			$stmt->execute();
+			$count1 = $stmt->rowCount();
+			if($count1 > 0)
+			{
+				$x = 1;
+				while($row=$stmt->fetch(PDO::FETCH_ASSOC))
+				{
+					?>
+						<tr>
+							<td><?php print($row['evento']); ?></td>
+							<td><?php print($row['nombre_cliente']); ?></td>
+							<td><?php print(number_format($row['monto'],2)); ?></td>
+							<td><?php print($row['fecha_ejecucion']); ?></td>
+							<td><?php print($row['fecha_rechazo']); ?></td>
+							<td><?php print($row['tipo_rechazo']); ?></td>
+							<td><?php print($row['comentarios']); ?></td>
+						</tr>
+					<?php	
+					$x++;
+				}
+			}
+			else
+			{
+			?>
+				<tr>
+					<td>No hay eventos rechazados</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			<?php
+			}
+		}
+		
 		//Ver Ofertas
 		public function viewReplantearOferta()
 		{
@@ -70,7 +201,7 @@
 			<?php
 			}
 		}
-		public function viewReplantearOfertaUpdate()
+		public function viewReplantearOfertaUpdate($agente)
 		{
 			$query = "SELECT
 						A.id_agente,
@@ -79,8 +210,9 @@
 						A.oferta_actual,
 						A.oferta_proxima
 					FROM T_Agentes AS A
-					ORDER BY A.nombre_agente";
+					WHERE A.id_agente = :agente";
 			$stmt = $this->conn->prepare($query);
+			$stmt->bindparam(":agente",$agente);
 			$stmt->execute();
 			$count1 = $stmt->rowCount();
 			if($count1 > 0)
