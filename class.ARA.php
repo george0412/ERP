@@ -11,6 +11,107 @@
 			$this->conn = $db;
 		}
 		//SELECTS//
+		//Ver Ofertas
+		public function viewReplantearOferta()
+		{
+			$query = "SELECT
+						A.id_agente,
+						CONCAT(A.nombre_agente,' ',A.apellidos_agente) AS agente,
+						A.oferta_anterior,
+						A.oferta_actual,
+						A.oferta_proxima
+					FROM T_Agentes AS A
+					ORDER BY A.nombre_agente";
+			$stmt = $this->conn->prepare($query);
+			$stmt->execute();
+			$count1 = $stmt->rowCount();
+			if($count1 > 0)
+			{
+				$x = 1;
+				while($row=$stmt->fetch(PDO::FETCH_ASSOC))
+				{
+					if($row['oferta_proxima'] == 0)
+					{
+					?>
+						<tr>
+							<td style="text-align: center"><a href="updateOferta.php?agente=<?php print($row['id_agente']); ?>"><i class="glyph-icon icon-pencil"></i></a></td>
+							<td><?php print($row['agente']); ?></td>
+							<td><?php print(number_format($row['oferta_anterior'],2)); ?></td>
+							<td><?php print(number_format($row['oferta_actual'],2)); ?></td>
+							<td><?php print(number_format($row['oferta_proxima'],2)); ?></td>
+						</tr>
+					<?php	
+					}
+					else
+					{
+					?>
+						<tr>
+							<td></td>
+							<td><?php print($row['agente']); ?></td>
+							<td><?php print(number_format($row['oferta_anterior'],2)); ?></td>
+							<td><?php print(number_format($row['oferta_actual'],2)); ?></td>
+							<td><?php print(number_format($row['oferta_proxima'],2)); ?></td>
+						</tr>
+					<?php	
+					}
+					$x++;
+				}
+			}
+			else
+			{
+			?>
+				<tr>
+					<td>No hay agentes disponibles</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			<?php
+			}
+		}
+		public function viewReplantearOfertaUpdate()
+		{
+			$query = "SELECT
+						A.id_agente,
+						CONCAT(A.nombre_agente,' ',A.apellidos_agente) AS agente,
+						A.oferta_anterior,
+						A.oferta_actual,
+						A.oferta_proxima
+					FROM T_Agentes AS A
+					ORDER BY A.nombre_agente";
+			$stmt = $this->conn->prepare($query);
+			$stmt->execute();
+			$count1 = $stmt->rowCount();
+			if($count1 > 0)
+			{
+				$x = 1;
+				while($row=$stmt->fetch(PDO::FETCH_ASSOC))
+				{
+					?>
+						<tr>
+							<td><?php print($row['agente']); ?></td>
+							<td><?php print(number_format($row['oferta_anterior'],2)); ?></td>
+							<td><?php print(number_format($row['oferta_actual'],2)); ?></td>
+							<td><input type="text" id="prox_oferta" name="prox_oferta" value="0.00" class="form-control" onkeyup="getCommas(this);"/></td>
+						</tr>
+					<?php
+					$x++;
+				}
+			}
+			else
+			{
+			?>
+				<tr>
+					<td>No hay agentes disponibles</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			<?php
+			}
+		}
 		//Méritos ARA
 		public function meritosMensual($year,$month,$tipo)
 		{
@@ -19,7 +120,7 @@
 				$query = "SELECT
 							CONCAT(A.nombre_agente,' ',A.apellidos_agente) AS agente,
 							0 AS desarrollo,
-							0 AS desempeño
+							0 AS desempeno
 						FROM T_Agentes AS A
 						ORDER BY A.nombre_agente";
 				$stmt = $this->conn->prepare($query);
@@ -31,7 +132,7 @@
 				$query = "SELECT
 							CONCAT(A.nombre_agente,' ',A.apellidos_agente) AS agente,
 							0 AS desarrollo,
-							0 AS desempeño
+							0 AS desempeno
 						FROM T_Agentes AS A
 						WHERE A.id_invo_evo = :tipo
 						ORDER BY A.nombre_agente";
@@ -71,9 +172,9 @@
 							<td><?php print($x);?></td>
 							<td><?php print($row['agente']); ?></td>
 							<td><?php print($row['desarrollo']); ?></td>
-							<td><?php print($row['desempeño']); ?></td>
-							<td><?php print($row['desarrollo']+$row['desempeño']); ?></td>
-							<td><?php print(round(($row['desarrollo']+$row['desempeño'])/100,2)); ?></td>
+							<td><?php print($row['desempeno']); ?></td>
+							<td><?php print($row['desarrollo']+$row['desempeno']); ?></td>
+							<td><?php print(round(($row['desarrollo']+$row['desempeno'])/100,2)); ?></td>
 						</tr>
 					<?php
 					$x++;
@@ -2959,5 +3060,26 @@
 				return false;
 			}
 		}
-		
+		//Update Próxima Oferta
+		public function updateOferta($agente,$oferta)
+		{
+			$this->conn->beginTransaction();
+			try
+			{
+				$query="UPDATE T_Agentes SET oferta_proxima = :oferta WHERE id_agente = :agente";
+				$stmt = $this->conn->prepare($query);
+				$stmt->bindparam(":oferta",$oferta);
+				$stmt->bindparam(":agente",$agente);
+				$stmt->execute();
+				$last_id = $this->conn->lastInsertId();
+				$this->conn->commit();
+				return true;
+			}
+			catch(PDOException $e)
+			{
+				echo $e->getMessage();
+				$this->conn->rollBack();
+				return false;
+			}
+		}
 	}
