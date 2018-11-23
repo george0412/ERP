@@ -11,6 +11,89 @@
 			$this->conn = $db;
 		}
 		//SELECTS//
+		//Méritos ARA
+		public function meritosMensual($year,$month,$tipo)
+		{
+			if($tipo == 0)
+			{
+				$query = "SELECT
+							CONCAT(A.nombre_agente,' ',A.apellidos_agente) AS agente,
+							0 AS desarrollo,
+							0 AS desempeño
+						FROM T_Agentes AS A
+						ORDER BY A.nombre_agente";
+				$stmt = $this->conn->prepare($query);
+				$stmt->execute();
+				$count1 = $stmt->rowCount();
+			}
+			else
+			{
+				$query = "SELECT
+							CONCAT(A.nombre_agente,' ',A.apellidos_agente) AS agente,
+							0 AS desarrollo,
+							0 AS desempeño
+						FROM T_Agentes AS A
+						WHERE A.id_invo_evo = :tipo
+						ORDER BY A.nombre_agente";
+				$stmt = $this->conn->prepare($query);
+				$stmt->bindparam(":tipo",$tipo);
+				$stmt->execute();
+				$count1 = $stmt->rowCount();
+			}
+			if($count1 > 0)
+			{
+				$x = 1;
+				while($row=$stmt->fetch(PDO::FETCH_ASSOC))
+				{
+					if($x == 1)
+					{
+						$bgcolor = "#FFC700";
+						$fontcolor = "white";
+					}
+					elseif($x == 2)
+					{
+						$bgcolor = "#e2e2e0";
+						$fontcolor = "white";
+					}
+					elseif($x == 3)
+					{
+						$bgcolor = "#e06133";
+						$fontcolor = "white";
+					}
+					else
+					{
+						$bgcolor = "";
+						$fontcolor = "black";
+					}
+					
+					?>
+						<tr bgcolor="<?php print($bgcolor); ?>" style="color:<?php print($fontcolor); ?>">
+							<td><?php print($x);?></td>
+							<td><?php print($row['agente']); ?></td>
+							<td><?php print($row['desarrollo']); ?></td>
+							<td><?php print($row['desempeño']); ?></td>
+							<td><?php print($row['desarrollo']+$row['desempeño']); ?></td>
+							<td><?php print(round(($row['desarrollo']+$row['desempeño'])/100,2)); ?></td>
+						</tr>
+					<?php
+					$x++;
+				}
+			}
+			else
+			{
+			?>
+				<tr>
+					<td>No hay agentes disponibles</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			<?php
+			}
+		}
 		//Planeación ARA
 		public function planeacionARA($year)
 		{
