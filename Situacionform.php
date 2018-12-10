@@ -862,6 +862,10 @@
 					<h4 class="modal-title">Recalcula el valor absoluto y ajustado del cliente seleccionado</h4>
 				</div>
 				<div id="modal-content" class="modal-body">
+					<?php
+					if($zona != 7)
+					{
+					?>
 					<div class="content-box-wrapper">
 						<div class="example-box-wrapper">
 							<div class="row">
@@ -958,6 +962,155 @@
 							</div>
 						</div>
 					</div>
+					<?php
+					}
+					else
+					{
+					?>
+					<div class="content-box-wrapper">
+						<div class="example-box-wrapper">
+							<div class="row">
+								<div class="form-group">
+									<label for="" class="col-sm-2 control-label">Tamaño de la organización</label>
+									<div class="col-sm-4">
+										<div class="input-prepend input-group">
+											<select onchange="getAbsolutoDC();" id="tamano" name="tamano" class="form-control">	
+												<option value="0">Selecciona el tamaño de la organización</option>
+												<option value="1">Micro (200-500)</option>
+												<option value="3">Chicas (501-1000)</option>
+												<option value="5">Medianas (1001-2999)</option>
+												<option value="7">Grandes (3000-5000)</option>
+												<option value="10">Super grandes (5000- )</option>
+											</select>
+										</div>
+									</div>
+									<label for="" class="col-sm-2 control-label">Cursos Nivel 1 (Institucionales)</label>
+									<div class="col-sm-4">
+										<div class="input-prepend input-group">
+											<select onchange="getAbsolutoDC();" id="cursoN1" name="cursoN1" class="form-control">	
+												<option value="0">Selecciona la opción correspondiente</option>
+												<option value="1">1</option>
+												<option value="2">2</option>
+												<option value="3">3</option>
+												<option value="4">4</option>
+												<option value="5">5</option>
+												<option value="6">6</option>
+												<option value="7">7</option>
+												<option value="8">8</option>
+												<option value="9">9</option>
+												<option value="10">10</option>
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group">
+									<label for="" class="col-sm-2 control-label">Cursos Nivel 2 (Técnicos)</label>
+									<div class="col-sm-4">
+										<div class="input-prepend input-group">
+										   <select onchange="getAbsolutoDC();" id="cursoN2" name="cursoN2" class="form-control">	
+												<option value="0">Selecciona la opción correspondiente</option>
+												<option value="2">2</option>
+												<option value="4">4</option>
+												<option value="6">6</option>
+												<option value="8">8</option>
+												<option value="10">10</option>
+												<option value="12">12</option>
+												<option value="14">14</option>
+												<option value="16">16</option>
+												<option value="18">18</option>
+												<option value="20">20</option>
+											</select>
+										</div>
+									</div>
+									<label for="" class="col-sm-2 control-label">Nivel desagregación proceso</label>
+									<div class="col-sm-4">
+										<div class="input-prepend input-group">
+										   <input type="text" class="form-control" id="nivelDes" name="nivelDes" value="0" readonly/>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group">
+									<label for="" class="col-sm-2 control-label">Cursos Gestión</label>
+									<div class="col-sm-4">
+										<div class="input-prepend input-group">
+											<input type="text" id="cursoGestion" name="cursoGestion" class="form-control" onkeyup="getAbsolutoDC();" value="0" />	
+										</div>
+									</div>
+									<label for="" class="col-sm-2 control-label">Suma</label>
+									<div class="col-sm-4">
+										<div class="input-prepend input-group">
+											<input type="text" id="sumaDC" name="sumaDC" class="form-control" onkeyup="" value="0" readonly/>	
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group">
+									<label for="" class="col-sm-2 control-label">Digitalización</label>
+									<div class="col-sm-4">
+										<div class="input-prepend input-group">
+											<select onchange="getAbsolutoDC();" id="digitalizacion" name="digitalizacion" class="form-control">	
+												<option value="0">Selecciona la opción correspondiente</option>
+												<option value="0.25">Alta</option>
+												<option value="0.5">Media</option>
+												<option value="0.75">Baja</option>
+											</select>
+										</div>
+									</div>
+									<label for="" class="col-sm-2 control-label">Fabricación interna</label>
+									<div class="col-sm-4">
+										<div class="input-prepend input-group">
+											<select onchange="getAbsolutoDC();" id="fabricacion" name="fabricacion" class="form-control">	
+												<option value="0">Selecciona la opción correspondiente</option>
+												<option value="0.25">Alta</option>
+												<option value="0.5">Media</option>
+												<option value="0.75">Baja</option>
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group">
+									<label for="" class="col-sm-2 control-label">Políticas internas (Asignación de proveedores)</label>
+									<div class="col-sm-4">
+										<div class="input-prepend input-group">
+											<select onchange="getAbsolutoDC();" id="politicas" name="politicas" class="form-control">	
+												<option value="0">Selecciona la opción correspondiente</option>
+												<option value="0.33">1</option>
+												<option value="0.50">2</option>
+												<option value="1">3</option>
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group">
+									<label for="" class="col-sm-2 control-label">Valor Absoluto</label>
+									<div class="col-sm-4">
+										<div class="input-prepend input-group">
+											<input type="text" class="form-control" id="valor_absoluto" name="valor_absoluto" readonly>
+										</div>
+									</div>
+									<label for="" class="col-sm-2 control-label">Valor Ajustado</label>
+									<div class="col-sm-4">
+										<div class="input-prepend input-group">
+											<input type="text" class="form-control" id="valor_ajustado" name="valor_ajustado" readonly>
+										</div>
+									</div>
+								</div>
+								<input type="hidden" id="validacion" name="validacion" value="0"/>
+							</div>
+						</div>
+					</div>
+					<?php
+					}
+					?>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
@@ -1605,6 +1758,25 @@
 	<input type="hidden" id="totalRowsE3" name="totalRowsE3" class="form-control" value="1">
 	<!--SCRIPT PARA ABRIR MODAL DE GENERAR-->
 	<script type="text/javascript">
+		function getAbsolutoDC()
+		{
+			var tamano = parseInt($('#tamano').val());
+			var nivel1 = $('#cursoN1').val();
+			var nivel2 = $('#cursoN2').val();
+			var nivelDes = (parseInt(nivel1)+parseInt(nivel2))*3;
+			var cursoGestion = $('#cursoGestion').val();
+			var suma = parseInt(nivelDes)+parseInt(cursoGestion);
+			var digitalizacion = parseFloat($('#digitalizacion').val());
+			var fabricacion = parseFloat($('#fabricacion').val());
+			var politicas = parseFloat($('#politicas').val());
+			var absoluto = (40000*suma)/digitalizacion;
+			var ajustado = (absoluto*fabricacion)*politicas;
+			
+			$('#nivelDes').val(nivelDes);
+			$('#sumaDC').val(suma);
+			$('#valor_absoluto').val(commaSeparateNumber(absoluto));
+			$('#valor_ajustado').val(commaSeparateNumber(ajustado));
+		}
 		function botonGenerar()
 		{
 			var escenario2 = commaUnseparateNumber($('#total_E2').val());
